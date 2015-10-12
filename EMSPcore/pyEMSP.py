@@ -83,6 +83,10 @@ class EMSP:
 
             if cmd == 'ATTITUDE':
                 return self.getATTITUDE(temp, elapsed)
+            elif cmd == 'RC':
+                return self.getRC(temp, elapsed)
+            elif cmd == 'RAW_IMU':
+                return self.getRAW_IMU(temp, elapsed)
             else:
                 return "No return error!"
 
@@ -98,5 +102,23 @@ class EMSP:
         data['elapsed'] = round(elapsed,3)
         return data
 
+    def getRC(self, temp, elapsed):
+        data = {}
+        data['roll'] = float(temp[0])
+        data['pitch'] = float(temp[1])
+        data['yaw'] = float(temp[2])
+        data['throttle'] = float(temp[3])
+        data['elapsed'] = round(elapsed,3)
+        return data
 
+    def getRAW_IMU(self, temp, elapsed):
+        data = {}
+        data['ax'] = float(temp[0])
+        data['ay'] = float(temp[1])
+        data['az'] = float(temp[2])
+        data['gx'] = float(temp[3])
+        data['gy'] = float(temp[4])
+        data['gz'] = float(temp[5])
+        data['elapsed'] = round(elapsed,3)
+        return data
 
