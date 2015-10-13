@@ -54,14 +54,12 @@ class EMSP:
             pass
 
     # Function to receive a data packet from the board
-    def getData(self, cmd):
+    def getData(self, cmd, rcdata = [], dataLength = 0):
         try:
 
             ### get data
-
             start = time.time()
-
-            self.sendCMD(0,int(self.config.get('Code',cmd)),[])
+            self.sendCMD(dataLength,int(self.config.get('Code',cmd)),rcdata)
 
             while True:
                 header = self.ser.read()
@@ -73,12 +71,9 @@ class EMSP:
             code = struct.unpack('<b', self.ser.read())
             data = self.ser.read(datalength)
             temp = struct.unpack('<'+'h'*(datalength/2),data)
-
             self.ser.flushInput()
             self.ser.flushOutput()
-
             elapsed = time.time() - start
-
             ###
 
             if cmd == 'ATTITUDE':
@@ -87,6 +82,10 @@ class EMSP:
                 return self.getRC(temp, elapsed)
             elif cmd == 'RAW_IMU':
                 return self.getRAW_IMU(temp, elapsed)
+            elif cmd == 'SET_RAW_RC':
+                return self.getSET_RAW_RC(temp, elapsed)
+            elif cmd == 'MOTOR':
+                return self.getMOTOR(temp, elapsed)
             else:
                 return "No return error!"
 
@@ -122,3 +121,32 @@ class EMSP:
         data['elapsed'] = round(elapsed,3)
         return data
 
+    def getSET_RAW_RC(self, temp, elapsed):
+        pass
+
+    def getMOTOR(self, temp, elapsed):
+        data = {}
+        data['m1'] = float(temp[0])
+        data['m2'] = float(temp[1])
+        data['m3'] = float(temp[2])
+        data['m4'] = float(temp[3])
+        data['elapsed'] = round(elapsed,3)
+        return data
+
+    def arm(self):
+        timer = 0
+        start = time.time()
+        while timer < 0.5:
+            data = [1500,1500,2000,1000]
+            self.sendCMD(8,int(self.config.get('Code','SET_RAW_RC')),data)
+            time.sleep(0.05)
+            timer = time.time() - start
+
+    def disarm(self):
+        timer = 0
+        start = time.time()
+        while timer < 0.5:
+            data = [1500,1500,1000,1000]
+            self.sendCMD(8,int(self.config.get('Code','SET_RAW_RC')),data)
+            time.sleep(0.05)
+            timer = time.time() - start
