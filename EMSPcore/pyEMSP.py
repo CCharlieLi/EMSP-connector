@@ -72,7 +72,6 @@ class EMSP:
             datalength = struct.unpack('<b', self.ser.read())[0]
             code = struct.unpack('<b', self.ser.read())
             data = self.ser.read(datalength)
-            temp = struct.unpack('<'+'h'*(datalength/2),data)
 
             self.ser.flushInput()
             self.ser.flushOutput()
@@ -82,11 +81,17 @@ class EMSP:
             ###
 
             if cmd == 'ATTITUDE':
+                temp = struct.unpack('<'+'h'*(datalength/2),data)
                 return self.getATTITUDE(temp, elapsed)
             elif cmd == 'RC':
+                temp = struct.unpack('<'+'h'*(datalength/2),data)
                 return self.getRC(temp, elapsed)
             elif cmd == 'RAW_IMU':
+                temp = struct.unpack('<'+'h'*(datalength/2),data)
                 return self.getRAW_IMU(temp, elapsed)
+            elif cmd == 'API_VERSION':
+                temp = struct.unpack('<'+'b'*(datalength),data)
+                return self.getAPI_VERSION(temp,elapsed)
             else:
                 return "No return error!"
 
@@ -121,4 +126,13 @@ class EMSP:
         data['gz'] = float(temp[5])
         data['elapsed'] = round(elapsed,3)
         return data
+
+    def getAPI_VERSION(self,temp,elapsed):
+        data = {}
+        data['protver']=int(temp[0])
+        data['majorver']=int(temp[1])
+        data['minorver']=int(temp[2])
+        data['elapsed']=round(elapsed,3)
+        return data
+        
 
