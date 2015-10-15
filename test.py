@@ -1,4 +1,4 @@
-import sys
+import sys,time
 from EMSPcore.pyEMSP import EMSP
 
 if __name__ == "__main__":
