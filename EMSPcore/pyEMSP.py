@@ -70,22 +70,36 @@ class EMSP:
             datalength = struct.unpack('<b', self.ser.read())[0]
             code = struct.unpack('<b', self.ser.read())
             data = self.ser.read(datalength)
-            temp = struct.unpack('<'+'h'*(datalength/2),data)
+
             self.ser.flushInput()
             self.ser.flushOutput()
             elapsed = time.time() - start
             ###
 
             if cmd == 'ATTITUDE':
+                temp = struct.unpack('<'+'h'*(datalength/2),data)
                 return self.getATTITUDE(temp, elapsed)
             elif cmd == 'RC':
+                temp = struct.unpack('<'+'h'*(datalength/2),data)
                 return self.getRC(temp, elapsed)
             elif cmd == 'RAW_IMU':
+                temp = struct.unpack('<'+'h'*(datalength/2),data)
                 return self.getRAW_IMU(temp, elapsed)
-            elif cmd == 'SET_RAW_RC':
-                return self.getSET_RAW_RC(temp, elapsed)
-            elif cmd == 'MOTOR':
-                return self.getMOTOR(temp, elapsed)
+            elif cmd == 'API_VERSION':
+                temp = struct.unpack('<'+'b'*(datalength),data)
+                return self.getAPI_VERSION(temp, elapsed)
+            elif cmd == 'FC_VARIANT':
+                temp = struct.unpack('<'+'c'*(datalength),data)
+                return self.getFC_VARIANT(temp, elapsed)
+            elif cmd == 'FC_VERSION':
+                temp = struct.unpack('<'+'b'*(datalength),data)
+                return self.getFC_VERSION(temp, elapsed)
+            elif cmd == 'BOARD_INFO':
+                temp = struct.unpack('<'+'c'*(datalength-2)+'h',data)
+                return self.getBOARD_INFO(temp, elapsed)
+            elif cmd == 'BUILD_INFO':
+                temp = struct.unpack('<'+'c'*(datalength),data)
+                return self.getBUILD_INFO(temp, elapsed)
             else:
                 return "No return error!"
 
@@ -98,7 +112,7 @@ class EMSP:
         data['angx'] = float(temp[0]/10.0)
         data['angy'] = float(temp[1]/10.0)
         data['heading'] = float(temp[2])
-        data['elapsed'] = round(elapsed,3)
+        data['elapsed'] = round(elapsed*1000,3)
         return data
 
     def getRC(self, temp, elapsed):
@@ -107,7 +121,7 @@ class EMSP:
         data['pitch'] = float(temp[1])
         data['yaw'] = float(temp[2])
         data['throttle'] = float(temp[3])
-        data['elapsed'] = round(elapsed,3)
+        data['elapsed'] = round(elapsed*1000,3)
         return data
 
     def getRAW_IMU(self, temp, elapsed):
@@ -118,7 +132,65 @@ class EMSP:
         data['gx'] = float(temp[3])
         data['gy'] = float(temp[4])
         data['gz'] = float(temp[5])
-        data['elapsed'] = round(elapsed,3)
+        data['elapsed'] = round(elapsed*1000,3)
+        return data
+
+<<<<<<< HEAD
+    def getAPI_VERSION(self, temp, elapsed):
+        data = {}
+        data['protver'] = int(temp[0])
+        data['majorver'] = int(temp[1])
+        data['minorver'] = int(temp[2])
+        data['elapsed'] = round(elapsed*1000,3)
+        return data
+
+    def getFC_VARIANT(self, temp, elapsed):
+        data = {}
+        str = ''
+        for c in temp:
+            str += c
+        data['fcId'] = str
+        data['elapsed'] = round(elapsed*1000,3)
+        return data
+
+    def getFC_VERSION(self, temp, elapsed):
+        data = {}
+        data['fcver'] = int(temp[0])
+        data['majorfcver'] = int(temp[1])
+        data['minorfcver'] = int(temp[2])
+        data['elapsed'] = round(elapsed*1000,3)
+        return data       
+
+    def getBOARD_INFO(self, temp, elapsed):
+        data = {}
+        str = ''
+        for i in range(len(temp)-1):
+            str += temp[i]
+        if temp[-1] == 1:
+            str += ' NAZE32'
+        elif temp[-1] == 2:
+            str += ' NAZE32_REV5'
+        elif temp[-1] ==3:
+            str += ' NAZE32_SP'
+        data['boardId'] = str
+        data['elapsed'] = round(elapsed*1000,3)
+        return data   
+
+    def getBUILD_INFO(self, temp, elapsed):
+        data = {}
+        str = ''
+        for c in temp[0:11]:
+            str += c
+        data['date'] = str
+        str = ''
+        for c in temp[11:19]:
+            str += c
+        data['time'] = str
+        str = ''        
+        for c in temp[19:26]:
+            str += c
+        data['git'] = str
+        data['elapsed'] = round(elapsed*1000,3)
         return data
 
     def getSET_RAW_RC(self, temp, elapsed):
@@ -150,3 +222,4 @@ class EMSP:
             self.sendCMD(8,int(self.config.get('Code','SET_RAW_RC')),data)
             time.sleep(0.05)
             timer = time.time() - start
+
