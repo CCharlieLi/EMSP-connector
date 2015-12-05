@@ -135,7 +135,6 @@ class EMSP:
         data['elapsed'] = round(elapsed*1000,3)
         return data
 
-<<<<<<< HEAD
     def getAPI_VERSION(self, temp, elapsed):
         data = {}
         data['protver'] = int(temp[0])
