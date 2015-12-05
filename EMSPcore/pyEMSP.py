@@ -85,6 +85,12 @@ class EMSP:
             elif cmd == 'RAW_IMU':
                 temp = struct.unpack('<'+'h'*(datalength/2),data)
                 return self.getRAW_IMU(temp, elapsed)
+            elif cmd == 'MOTOR':
+                temp = struct.unpack('<'+'h'*(datalength/2),data)
+                return self.getMOTOR(temp, elapsed)
+            elif cmd == 'SERVO':
+                temp = struct.unpack('<'+'h'*(datalength/2),data)
+                return self.getSERVO(temp, elapsed)
             elif cmd == 'API_VERSION':
                 temp = struct.unpack('<'+'b'*(datalength),data)
                 return self.getAPI_VERSION(temp, elapsed)
@@ -201,7 +207,24 @@ class EMSP:
         data['m2'] = float(temp[1])
         data['m3'] = float(temp[2])
         data['m4'] = float(temp[3])
-        data['elapsed'] = round(elapsed,3)
+        data['m5'] = float(temp[4])
+        data['m6'] = float(temp[5])
+        data['m7'] = float(temp[6])
+        data['m8'] = float(temp[7])
+        data['elapsed'] = round(elapsed*1000,3)
+        return data
+
+    def getSERVO(self, temp, elapsed):
+        data = {}
+        data['s1'] = float(temp[0])
+        data['s2'] = float(temp[1])
+        data['s3'] = float(temp[2])
+        data['s4'] = float(temp[3])
+        data['s5'] = float(temp[4])
+        data['s6'] = float(temp[5])
+        data['s7'] = float(temp[6])
+        data['s8'] = float(temp[7])
+        data['elapsed'] = round(elapsed*1000,3)
         return data
 
     def arm(self):
